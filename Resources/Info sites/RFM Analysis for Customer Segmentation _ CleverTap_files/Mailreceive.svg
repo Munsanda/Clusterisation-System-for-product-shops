@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="20px" viewBox="0 0 28 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.2 (47327) - http://www.bohemiancoding.com/sketch -->
+    <title>Mailreceive</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="28" height="18.2474794" rx="1.57082749"></rect>
+        <polygon id="path-3" points="1.6 0 26.4 0 14 11.1071614"></polygon>
+    </defs>
+    <g id="journey" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-122.000000, -4766.000000)">
+        <g id="Group-16" transform="translate(0.000000, 2861.000000)">
+            <g id="Footer" transform="translate(1.000000, 1821.706691)">
+                <g id="Group-4">
+                    <g id="Group-26" transform="translate(121.000000, 0.000000)">
+                        <g id="Group-25">
+                            <g id="Group-13-Copy" transform="translate(0.000000, 84.141155)">
+                                <g id="Group-14">
+                                    <g id="Mailreceive">
+                                        <g id="Triangle-17-+-Line-+-Line-Mask">
+                                            <mask id="mask-2" fill="white">
+                                                <use xlink:href="#path-1"></use>
+                                            </mask>
+                                            <use id="Mask" fill="#FF893C" xlink:href="#path-1"></use>
+                                            <g id="Triangle-17" stroke-linejoin="round" mask="url(#mask-2)">
+                                                <use fill="#FF893C" fill-rule="evenodd" xlink:href="#path-3"></use>
+                                                <path stroke="#F9FAFB" stroke-width="1" d="M0.292411498,-0.5 L27.7075885,-0.5 L14,11.7784191 L0.292411498,-0.5 Z"></path>
+                                            </g>
+                                            <path d="M10,7.53700235 L0.4,17.850795" id="Line" stroke="#F9FAFB" fill="#D0E8FF" mask="url(#mask-2)"></path>
+                                            <path d="M27.6,7.53700235 L18,17.850795" id="Line" stroke="#F9FAFB" fill="#D0E8FF" mask="url(#mask-2)" transform="translate(22.800000, 12.693899) scale(-1, 1) translate(-22.800000, -12.693899) "></path>
+                                        </g>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

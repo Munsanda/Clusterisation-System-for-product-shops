@@ -1,0 +1,1 @@
+['C:\\Users\\User\\Documents\\DIPLOMNAYA_PYQT\\Resources\\Example_Data\\Copy of Sample - Superstore.xlsx', '2', '3', '21', '3', '3', '4']

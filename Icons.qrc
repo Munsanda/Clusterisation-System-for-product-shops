@@ -1,0 +1,10 @@
+<RCC>
+  <qresource>
+    <file>Resources/Icons/loading.gif</file>
+    <file>Resources/Icons/left.png</file>
+    <file>Resources/Icons/right.png</file>
+    <file>Resources/Icons/Exit.png</file>
+    <file>Resources/Icons/Open.png</file>
+    <file>Resources/Icons/Save.png</file>
+  </qresource>
+</RCC>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<!-- saved from url=(0047)https://bl.ocks.org/rpgove/0060ff3b656618e9136b -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=1000">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@mbostock">
+<meta property="og:url" content="https://bl.ocks.org/rpgove/0060ff3b656618e9136b">
+<meta property="og:title" content="Using the elbow method to determine the optimal number of clusters for k-means clustering">
+<meta property="og:description" content="Robert Gove’s Block 0060ff3b656618e9136b">
+<meta property="og:image" content="https://bl.ocks.org/rpgove/raw/0060ff3b656618e9136b/9aee23cc799d154520572b30443284525dbfcac5/thumbnail.png">
+<title>Using the elbow method to determine the optimal number of clusters for k-means clustering - bl.ocks.org</title>
+<link rel="icon" href="https://bl.ocks.org/favicon.png">
+<link rel="canonical" href="https://bl.ocks.org/rpgove/0060ff3b656618e9136b">
+<style>
+
+@import url("/style.css");
+
+</style>
+
+
+</head><body><header>
+  <div class="column">
+    <div class="navigation">
+      <a href="https://bl.ocks.org/">Popular</a>
+      / <a href="https://bl.ocks.org/-/about">About</a>
+    </div>
+    <a class="user" href="https://bl.ocks.org/rpgove"><img class="avatar" src="./Using the elbow method to determine the optimal number of clusters for k-means clustering - bl.ocks.org_files/2725258" width="30" height="30">Robert Gove</a>’s
+    Block <a class="gist gist-id self" title="View Gist on GitHub." href="https://gist.github.com/rpgove/0060ff3b656618e9136b">0060ff3b656618e9136b</a>    <div class="date">Updated December 26, 2017</div>
+  </div>
+</header>
+
+<div class="column">
+  <h1>Using the elbow method to determine the optimal number of clusters for k-means clustering</h1>
+  <div class="index">
+    <iframe sandbox="allow-popups allow-scripts allow-forms allow-same-origin" src="./Using the elbow method to determine the optimal number of clusters for k-means clustering - bl.ocks.org_files/saved_resource.html" marginwidth="0" marginheight="0" style="height:500px;" scrolling="no"></iframe>
+  </div>
+  <div class="index-pop">
+    <a target="_blank" title="Open Block 0060ff3b656618e9136b a new window." href="https://bl.ocks.org/rpgove/raw/0060ff3b656618e9136b">Open<svg height="16" width="12"><path d="M11 10h1v3c0 0.55-0.45 1-1 1H1c-0.55 0-1-0.45-1-1V3c0-0.55 0.45-1 1-1h3v1H1v10h10V10zM6 2l2.25 2.25-3.25 3.25 1.5 1.5 3.25-3.25 2.25 2.25V2H6z"></path></svg></a>
+  </div>
+  <div class="gist-readme" data-key="README.md"><p><a href="https://en.wikipedia.org/wiki/K-means_clustering">K-means</a> is a simple <a href="https://en.wikipedia.org/wiki/Unsupervised_learning">unsupervised machine learning</a> algorithm that groups a dataset into a user-specified number (<em>k</em>) of clusters. The algorithm is somewhat naive--it clusters the data into <em>k</em> clusters, even if <em>k</em> is not the right number of clusters to use. Therefore, when using k-means clustering, users need some way to determine whether they are using the right number of clusters.</p>
+<p>One method to validate the number of clusters is the <em>elbow method</em>. The idea of the elbow method is to run k-means clustering on the dataset for a range of values of <em>k</em> (say, <em>k</em> from 1 to 10 in the examples above), and for each value of <em>k</em> calculate the sum of squared errors (SSE). Like this:</p>
+<pre><code class="hljs php"><span class="keyword">var</span> sse = {};
+<span class="keyword">for</span> (<span class="keyword">var</span> k = <span class="number">1</span>; k &lt;= maxK; ++k) {
+    sse[k] = <span class="number">0</span>;
+    clusters = kmeans(dataset, k);
+    clusters.<span class="keyword">forEach</span>(<span class="function"><span class="keyword">function</span><span class="params">(cluster)</span> </span>{
+        mean = clusterMean(cluster);
+        cluster.<span class="keyword">forEach</span>(<span class="function"><span class="keyword">function</span><span class="params">(datapoint)</span> </span>{
+            sse[k] += Math.pow(datapoint - mean, <span class="number">2</span>);
+        });
+    });
+}</code></pre>
+<p>Then, plot a line chart of the SSE for each value of <em>k</em>. If the line chart looks like an arm, then the "elbow" on the arm is the value of <em>k</em> that is the best. The idea is that we want a small SSE, but that the SSE tends to decrease toward 0 as we increase <em>k</em> (the SSE is 0 when <em>k</em> is equal to the number of data points in the dataset, because then each data point is its own cluster, and there is no error between it and the center of its cluster). So our goal is to choose a small value of <em>k</em> that still has a low SSE, and the elbow usually represents where we start to have diminishing returns by increasing <em>k</em>.</p>
+<p>Note Dataset A on the left. At the top we see a number line plotting each point in the dataset, and below we see an elbow chart showing the SSE after running k-means clustering for <em>k</em> going from 1 to 10. We see a pretty clear elbow at <em>k</em> = 3, indicating that 3 is the best number of clusters.</p>
+<p>However, the elbow method doesn't always work well; especially if the data is not very clustered. Notice how the elbow chart for Dataset B does not have a clear elbow. Instead, we see a fairly smooth curve, and it's unclear what is the best value of <em>k</em> to choose. In cases like this, we might try a different method for determining the optimal <em>k</em>, such as computing <a href="https://en.wikipedia.org/wiki/Silhouette_%28clustering%29">silhouette scores</a>, or we might reevaluate whether clustering is the right thing to do on our data.</p>
+<p>This has practical applications for other methods too, such as determining the best number of classes to use in the <a href="https://en.wikipedia.org/wiki/Jenks_natural_breaks_optimization">Jenks natural breaks</a> algorithm for building color scales in <a href="https://en.wikipedia.org/wiki/Choropleth_map">choropleth maps</a>.</p>
+<p>You can paste in your own comma-separated list of numbers in the input fields above and click "Parse datasets" to see your numbers plotted and their corresponding elbow charts.</p></div>
+  <div class="gist-sources">
+    <div class="gist-source" data-key="index.html">
+      <h2>index.html<a name="index.html" class="anchor" href="https://bl.ocks.org/rpgove/0060ff3b656618e9136b#index.html">#</a></h2>
+      <pre><code class="html hljs xml"><span class="meta">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"utf-8"</span>&gt;</span>
+<span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="css">
+<span class="selector-tag">html</span>, <span class="selector-tag">body</span> {
+	<span class="attribute">height</span>: <span class="number">100%</span>;
+}
+
+<span class="selector-tag">body</span> {
+	<span class="attribute">margin</span>: <span class="number">0</span>;
+	<span class="attribute">padding</span>: <span class="number">0</span>;
+	<span class="attribute">overflow</span>: hidden;
+	<span class="attribute">font-size</span>: <span class="number">12px</span>;
+	<span class="attribute">font-family</span>: Arial, sans-serif;
+}
+
+<span class="selector-id">#maindiv</span> {
+	<span class="attribute">width</span>: <span class="number">960px</span>;
+	<span class="attribute">height</span>: <span class="number">380px</span>;
+}
+
+<span class="selector-class">.dataset-a</span>, <span class="selector-class">.dataset-b</span> {
+	<span class="attribute">display</span>: inline-block;
+	<span class="attribute">width</span>: <span class="number">400px</span>;
+	<span class="attribute">padding</span>: <span class="number">0</span> <span class="number">0</span> <span class="number">0</span> <span class="number">50px</span>;
+}
+
+<span class="selector-id">#button</span> {
+	<span class="attribute">margin</span>: <span class="number">20px</span> <span class="number">50px</span>;
+}
+
+<span class="selector-id">#error</span> {
+	<span class="attribute">margin</span>: <span class="number">20px</span> <span class="number">50px</span>;
+	<span class="attribute">font-size</span>: <span class="number">20px</span>;
+	<span class="attribute">color</span>: red;
+}
+</span><span class="tag">&lt;/<span class="name">style</span>&gt;</span>
+<span class="tag">&lt;<span class="name">body</span>&gt;</span>
+<span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"moebio_framework.min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span>
+<span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript">
+	<span class="keyword">var</span> uniform = [<span class="number">0.2334</span>, <span class="number">0.4229</span>, <span class="number">0.2938</span>, <span class="number">0.9500</span>, <span class="number">0.3745</span>, <span class="number">0.3985</span>, <span class="number">0.3158</span>, <span class="number">0.4228</span>, <span class="number">0.2844</span>, <span class="number">0.3871</span>, <span class="number">0.5104</span>, <span class="number">0.3336</span>, <span class="number">0.2984</span>, <span class="number">0.2859</span>, <span class="number">0.4372</span>, <span class="number">0.8939</span>, <span class="number">0.4119</span>, <span class="number">0.5078</span>, <span class="number">0.9713</span>, <span class="number">0.3784</span>, <span class="number">0.3209</span>, <span class="number">0.3385</span>, <span class="number">0.5550</span>, <span class="number">0.5868</span>, <span class="number">0.3276</span>, <span class="number">0.8119</span>, <span class="number">0.7752</span>, <span class="number">0.9800</span>, <span class="number">0.5759</span>, <span class="number">0.3898</span>, <span class="number">0.4301</span>, <span class="number">0.3909</span>, <span class="number">0.4792</span>, <span class="number">0.4215</span>, <span class="number">0.6487</span>, <span class="number">0.0861</span>, <span class="number">0.1373</span>, <span class="number">0.1443</span>, <span class="number">0.2952</span>, <span class="number">0.2803</span>, <span class="number">0.1996</span>, <span class="number">0.1195</span>, <span class="number">0.1100</span>, <span class="number">0.0133</span>, <span class="number">0.2272</span>, <span class="number">0.2399</span>, <span class="number">0.1183</span>, <span class="number">0.1424</span>, <span class="number">0.1873</span>, <span class="number">0.1649</span>, <span class="number">0.8907</span>, <span class="number">0.9081</span>, <span class="number">0.8240</span>, <span class="number">0.8495</span>, <span class="number">0.9040</span>, <span class="number">0.7813</span>, <span class="number">0.6995</span>, <span class="number">0.8918</span>, <span class="number">0.8165</span>, <span class="number">0.9883</span>];
+	<span class="keyword">var</span> clustered = [<span class="number">0.5249</span>, <span class="number">0.6735</span>, <span class="number">0.5593</span>, <span class="number">0.4187</span>, <span class="number">0.6349</span>, <span class="number">0.4788</span>, <span class="number">0.4559</span>, <span class="number">0.4861</span>, <span class="number">0.5759</span>, <span class="number">0.4410</span>, <span class="number">0.5357</span>, <span class="number">0.4725</span>, <span class="number">0.6527</span>, <span class="number">0.4988</span>, <span class="number">0.3397</span>, <span class="number">0.4526</span>, <span class="number">0.4674</span>, <span class="number">0.6161</span>, <span class="number">0.5081</span>, <span class="number">0.5519</span>, <span class="number">0.5172</span>, <span class="number">0.5021</span>, <span class="number">0.4984</span>, <span class="number">0.5105</span>, <span class="number">0.8681</span>, <span class="number">0.7942</span>, <span class="number">0.8389</span>, <span class="number">0.8748</span>, <span class="number">0.8194</span>, <span class="number">0.9015</span>, <span class="number">0.8505</span>, <span class="number">0.7642</span>, <span class="number">0.9134</span>, <span class="number">0.8259</span>, <span class="number">0.8268</span>, <span class="number">0.7230</span>, <span class="number">0.8689</span>, <span class="number">0.8446</span>, <span class="number">0.7744</span>, <span class="number">0.8332</span>, <span class="number">0.8390</span>, <span class="number">0.8287</span>, <span class="number">0.1935</span>, <span class="number">0.2151</span>, <span class="number">0.0994</span>, <span class="number">0.1380</span>, <span class="number">0.1832</span>, <span class="number">0.1630</span>, <span class="number">0.1317</span>, <span class="number">0.1394</span>, <span class="number">0.2956</span>, <span class="number">0.2004</span>, <span class="number">0.1353</span>, <span class="number">0.2359</span>, <span class="number">0.1413</span>, <span class="number">0.1669</span>, <span class="number">0.1399</span>, <span class="number">0.1719</span>, <span class="number">0.1799</span>, <span class="number">0.1672</span>];
+	<span class="keyword">var</span> elbowData = {};
+	<span class="keyword">var</span> maxK = <span class="number">10</span>;
+	<span class="keyword">var</span> newData = <span class="literal">false</span>;
+	<span class="keyword">var</span> g;
+
+	<span class="function"><span class="keyword">function</span> <span class="title">computeData</span>(<span class="params"></span>) </span>{
+		<span class="comment">// Reset elbowData</span>
+		elbowData = {};
+
+		uniformNL = mo.NumberList.fromArray(uniform);
+		clusteredNL = mo.NumberList.fromArray(clustered);
+
+		<span class="comment">// Compute k-means clusters for k from 1 to 10, and populate the elbowData</span>
+		<span class="comment">// for each dataset and each value of k</span>
+		<span class="keyword">for</span> (<span class="keyword">var</span> k = <span class="number">1</span>; k &lt;= maxK; ++k) {
+			uniformKMeans = mo.NumberListOperators.linearKMeans(uniformNL, k);
+			clusteredKMeans = mo.NumberListOperators.linearKMeans(clusteredNL, k);
+
+			<span class="function"><span class="keyword">function</span> <span class="title">SSE</span>(<span class="params">datasetName, numClusters</span>) </span>{
+				<span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params">dataset</span>) </span>{
+					<span class="comment">// Sum up the sum of squared errors for each cluster</span>
+					sse = <span class="number">0</span>;
+					<span class="keyword">for</span> (<span class="keyword">var</span> c = <span class="number">0</span>; c &lt; dataset.length; ++c) {
+						mean = dataset[c].getAverage();
+						sse += dataset[c].subtract(mean).pow(<span class="number">2</span>).getNorm();
+					}
+
+					elbowData[datasetName] = elbowData[datasetName] || [];
+					elbowData[datasetName].push([numClusters, sse]);
+				}
+			}
+
+			<span class="comment">// Compute sum of squared errors for each cluster</span>
+			SSE(<span class="string">'uniform'</span>, k)(uniformKMeans);
+			SSE(<span class="string">'clustered'</span>, k)(clusteredKMeans);
+		}
+	}
+
+	<span class="function"><span class="keyword">function</span> <span class="title">drawNumberLine</span>(<span class="params">g, dataset, label, offset</span>) </span>{
+		<span class="keyword">var</span> lineLen = <span class="number">350</span>;
+		<span class="keyword">var</span> tickLen = <span class="number">5</span>;
+		<span class="keyword">var</span> x = <span class="number">50</span> + (offset || <span class="number">0</span>);
+		<span class="keyword">var</span> y = <span class="number">80</span>;
+		<span class="keyword">var</span> radius = <span class="number">5</span>;
+
+		<span class="keyword">var</span> min = <span class="number">0</span>;
+		<span class="keyword">var</span> max = <span class="number">1</span>;
+
+		<span class="keyword">if</span> (newData) {
+			min = mo.NumberList.fromArray(dataset).getMin();
+			max = mo.NumberList.fromArray(dataset).getMax();
+		}
+
+		<span class="keyword">var</span> range = max - min;
+
+		g.setStroke(<span class="string">'#777'</span>);
+		g.setFill(<span class="string">'rgba(125,125,125,0.5)'</span>);
+
+		<span class="comment">// x-axis</span>
+		g.line(x, y, x + lineLen, y);
+		<span class="comment">// Ticks</span>
+		g.line(x, y, x, y + tickLen);
+		g.line(x + lineLen / <span class="number">2</span>, y, x + lineLen / <span class="number">2</span>, y + tickLen);
+		g.line(x + lineLen, y, x + lineLen, y + tickLen);
+
+		<span class="comment">// Draw each data point</span>
+		dataset.forEach(<span class="function"><span class="keyword">function</span>(<span class="params">d</span>) </span>{
+			g.fCircle(x + ((d - min) / range) * lineLen, y - <span class="number">1.5</span> * radius, radius);
+		})
+
+		<span class="comment">// Labels</span>
+		g.setText(<span class="string">'#555'</span>, <span class="number">12</span>, <span class="string">'Arial'</span>, <span class="string">"center"</span>);
+		g.fText(min.toFixed(<span class="number">2</span>), x, y + tickLen);
+		g.fText(((min + max) / <span class="number">2</span>).toFixed(<span class="number">2</span>), x + lineLen / <span class="number">2</span>, y + tickLen);
+		g.fText(max.toFixed(<span class="number">2</span>), x + lineLen, y + tickLen);
+
+		g.setText(<span class="string">'#555'</span>, <span class="number">16</span>, <span class="string">'Arial'</span>, <span class="string">'center'</span>, <span class="string">'bottom'</span>, <span class="string">'bold'</span>);
+		g.fText(label, x + lineLen / <span class="number">2</span>, y - <span class="number">4</span> * radius);
+	}
+
+	<span class="function"><span class="keyword">function</span> <span class="title">drawElbowChart</span>(<span class="params">g, datasetName, offset</span>) </span>{
+		<span class="keyword">var</span> xLineLen = <span class="number">350</span>;
+		<span class="keyword">var</span> yLineLen = <span class="number">200</span>;
+		<span class="keyword">var</span> tickLen = <span class="number">5</span>;
+		<span class="keyword">var</span> x = <span class="number">50</span> + (offset || <span class="number">0</span>);
+		<span class="keyword">var</span> y = <span class="number">130</span>;
+		<span class="keyword">var</span> elbow = elbowData[datasetName];
+		<span class="keyword">var</span> sseMax = elbow.map(<span class="function"><span class="keyword">function</span>(<span class="params">pair</span>) </span>{ <span class="keyword">return</span> pair[<span class="number">1</span>] });
+		sseMax = mo.NumberList.fromArray(sseMax).getMax();
+
+		g.setStroke(<span class="string">"#777"</span>);
+
+		<span class="comment">// Draw axes</span>
+		g.line(x, y + yLineLen, x + xLineLen, y + yLineLen);
+		g.line(x, y + yLineLen, x, y)
+
+		<span class="comment">// x-axis ticks and labels</span>
+		<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">1</span>; i &lt;= maxK; ++i) {
+			<span class="keyword">var</span> xTick = <span class="built_in">Math</span>.floor((i / maxK) * xLineLen);
+			g.line(x + xTick, y + yLineLen, x + xTick, y + yLineLen + tickLen);
+			g.setText(<span class="string">'#555'</span>, <span class="number">12</span>, <span class="string">'Arial'</span>, <span class="string">"center"</span>);
+			g.fText(i, x + xTick, y + yLineLen + tickLen);
+		}
+
+		<span class="comment">// Axis title</span>
+		g.fText(<span class="string">"Number of clusters (k)"</span>, x + xLineLen / <span class="number">2</span>, y + yLineLen + tickLen + <span class="number">12</span>);
+		g.fTextRotated(<span class="string">"Sum of squared errors"</span>, x - <span class="number">16</span>, y + yLineLen / <span class="number">2</span>, -<span class="built_in">Math</span>.PI / <span class="number">2</span>);
+
+		g.setStroke(<span class="string">"#333"</span>);
+
+		<span class="comment">// Draw sum of square errors</span>
+		<span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">1</span>; i &lt; elbow.length; ++i) {
+			<span class="keyword">var</span> a = elbow[i - <span class="number">1</span>];
+			<span class="keyword">var</span> b = elbow[i];
+			<span class="keyword">var</span> xA = (a[<span class="number">0</span>] / maxK) * xLineLen + x;
+			<span class="keyword">var</span> yA = (<span class="number">1</span> - a[<span class="number">1</span>] / sseMax) * yLineLen + y;
+			<span class="keyword">var</span> xB = (b[<span class="number">0</span>] / maxK) * xLineLen + x;
+			<span class="keyword">var</span> yB = (<span class="number">1</span> - b[<span class="number">1</span>] / sseMax) * yLineLen + y;
+			g.line(xA, yA, xB, yB);
+		}
+	}
+
+	<span class="function"><span class="keyword">function</span> <span class="title">setup</span>(<span class="params"></span>) </span>{
+		g = <span class="keyword">new</span> mo.Graphics({
+			<span class="attr">container</span>: <span class="string">"#maindiv"</span>,
+			<span class="attr">dimensions</span>: {
+				<span class="attr">width</span>: <span class="number">960</span>,
+				<span class="attr">height</span>: <span class="number">380</span>
+			},
+			<span class="attr">init</span>: computeData,
+			<span class="attr">cycle</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
+				<span class="keyword">this</span>.setText(<span class="string">'#555'</span>, <span class="number">18</span>, <span class="string">'Arial'</span>, <span class="string">'center'</span>, <span class="string">'bottom'</span>, <span class="string">'bold'</span>);
+				<span class="keyword">this</span>.fText(<span class="string">"K-means clustering SSE vs. number of clusters for two random datasets"</span>, <span class="number">450</span>, <span class="number">20</span>);
+				<span class="keyword">this</span>.setStroke(<span class="string">"#aaa"</span>);
+				<span class="keyword">this</span>.line(<span class="number">150</span>, <span class="number">25</span>, <span class="number">750</span>, <span class="number">25</span>);
+				drawNumberLine(<span class="keyword">this</span>, clustered, <span class="string">"Dataset A"</span>);
+				drawNumberLine(<span class="keyword">this</span>, uniform, <span class="string">"Dataset B"</span>, <span class="number">450</span>);
+				drawElbowChart(<span class="keyword">this</span>, <span class="string">'clustered'</span>);
+				drawElbowChart(<span class="keyword">this</span>, <span class="string">'uniform'</span>, <span class="number">450</span>);
+			}
+		});
+		g.setBackgroundColor(<span class="string">'white'</span>);
+	}
+
+	<span class="function"><span class="keyword">function</span> <span class="title">inputChange</span>(<span class="params"></span>) </span>{
+		<span class="function"><span class="keyword">function</span> <span class="title">parseInput</span>(<span class="params">id</span>) </span>{
+			input = <span class="built_in">document</span>.getElementById(<span class="string">"input-"</span> + id);
+			value = input.value;
+
+			dataset = value.split(<span class="string">","</span>).map(<span class="function"><span class="keyword">function</span>(<span class="params">d</span>) </span>{
+				val = <span class="built_in">Number</span>(d);
+				<span class="keyword">if</span> (<span class="built_in">isNaN</span>(val) || !<span class="built_in">isFinite</span>(val) || d.trim().length === <span class="number">0</span>) {
+					<span class="keyword">throw</span> <span class="string">"Error parsing Dataset "</span> + id.toUpperCase();
+				}
+				<span class="keyword">return</span> val;
+			});
+
+			<span class="keyword">if</span> (id == <span class="string">"a"</span>) {
+				clustered = dataset;
+			} <span class="keyword">else</span> {
+				uniform = dataset;
+			}
+		}
+
+		<span class="keyword">try</span> {
+			<span class="keyword">var</span> id = <span class="string">"a"</span>;
+			parseInput(id);
+			id = <span class="string">"b"</span>;
+			parseInput(id);
+
+			computeData();
+
+			newData = <span class="literal">true</span>;
+
+			<span class="keyword">var</span> errorDiv = <span class="built_in">document</span>.getElementById(<span class="string">'error'</span>);
+			error.innerHTML = <span class="string">""</span>;
+		} <span class="keyword">catch</span> (e) {
+			<span class="keyword">var</span> errorDiv = <span class="built_in">document</span>.getElementById(<span class="string">'error'</span>);
+			error.innerHTML = e;
+		}
+	}
+
+	<span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{
+		<span class="keyword">var</span> inputA = <span class="built_in">document</span>.getElementById(<span class="string">'input-a'</span>);
+		<span class="keyword">var</span> inputB = <span class="built_in">document</span>.getElementById(<span class="string">'input-b'</span>);
+		
+		inputA.value = clustered.join(<span class="string">", "</span>);
+		inputB.value = uniform.join(<span class="string">", "</span>);
+
+		setup();
+	}
+</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span>
+<span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"maindiv"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span>
+<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"dataset-a"</span>&gt;</span>
+	Dataset A: <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">id</span>=<span class="string">"input-a"</span> <span class="attr">size</span>=<span class="string">"45"</span>&gt;</span>
+<span class="tag">&lt;/<span class="name">div</span>&gt;</span>
+<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"dataset-b"</span>&gt;</span>
+	Dataset B: <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">id</span>=<span class="string">"input-b"</span> <span class="attr">size</span>=<span class="string">"45"</span>&gt;</span>
+<span class="tag">&lt;/<span class="name">div</span>&gt;</span>
+<span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"button"</span>&gt;</span>
+	<span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">"button"</span> <span class="attr">onclick</span>=<span class="string">"inputChange()"</span>&gt;</span>Parse datasets<span class="tag">&lt;/<span class="name">button</span>&gt;</span>
+<span class="tag">&lt;/<span class="name">div</span>&gt;</span>
+<span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"error"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></code></pre>
+    </div>
+  </div>
+  <div class="gist-license">
+    <h2>LICENSE<a name="license" class="anchor" href="https://bl.ocks.org/rpgove/0060ff3b656618e9136b#license">#</a></h2>
+    This block appears to have <a target="_blank" href="https://choosealicense.com/no-license/">no license</a>. Please contact <a target="_blank" href="https://github.com/rpgove">the author</a> to request a license.
+  </div>
+</div>
+
+<script src="./Using the elbow method to determine the optimal number of clusters for k-means clustering - bl.ocks.org_files/d3-array.min.js.Без названия" integrity="sha384-c+16cUIc0b/tqEZ9mRvDfI/r1Dg1Yq3JpWgZFW4mjN2QU7XXFWVB90PDFlV8SIAm" crossorigin="anonymous"></script>
+<script src="./Using the elbow method to determine the optimal number of clusters for k-means clustering - bl.ocks.org_files/d3-collection.min.js.Без названия" integrity="sha384-H/Didu3qLpyrVmUqlvWapaxyhCzc+anaMa9uw+CHWHu+GNfClr91w8QgiLFIp7/V" crossorigin="anonymous"></script>
+<script src="./Using the elbow method to determine the optimal number of clusters for k-means clustering - bl.ocks.org_files/d3-dispatch.min.js.Без названия" integrity="sha384-dGRK/lIqGrmmAoVA9K4pwKI4YL4BxIpaGa1dwU6lcRdpp5OJR6FoMZqxqzvCzFBS" crossorigin="anonymous"></script>
+<script src="./Using the elbow method to determine the optimal number of clusters for k-means clustering - bl.ocks.org_files/d3-request.min.js.Без названия" integrity="sha384-xsZEl8WRzIEBs+gkv/88ttcv7hmGnFJX8t8k6V+fZcrG2y5o1SXsCRLzl2S9HkFU" crossorigin="anonymous"></script>
+<script src="./Using the elbow method to determine the optimal number of clusters for k-means clustering - bl.ocks.org_files/d3-selection.min.js.Без названия" integrity="sha384-AOxWgfcHKw/K6u7UX8IJ4vy418+zXnA6wB6P4/sobPFG0mM34UlLPHELGvI+aEX5" crossorigin="anonymous"></script>
+<script src="./Using the elbow method to determine the optimal number of clusters for k-means clustering - bl.ocks.org_files/showdown.min.js.Без названия" integrity="sha384-Mcx6WhltjdlkIwTWetAJIBNgD0lLtUcl//A7Ksp/vmVZVD2rzQ949wtmoehrDJd/" crossorigin="anonymous"></script>
+<script src="./Using the elbow method to determine the optimal number of clusters for k-means clustering - bl.ocks.org_files/highlight.min.js.Без названия" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+<script>
+
+hljs.configure({classPrefix: ""});
+showdown.setFlavor("github");
+
+var gist = {"public":true,"protocol":"https","sha":"9aee23cc799d154520572b30443284525dbfcac5","files":{"README.md":{"language":"Markdown","type":"text/markdown","filename":"README.md","size":3068,"sha":"01f5636760bbc9dd3a1888f7fc2c9bcd4aab418f"},"index.html":{"language":"HTML","type":"text/html","filename":"index.html","size":6841,"sha":"4dfa5ed4bf6b8db3513f7df41d88ef6727cadead"},"moebio_framework.min.js":{"language":"JavaScript","type":"application/javascript","filename":"moebio_framework.min.js","size":379400,"sha":"1eef4b490116582029cfd52cfd298eed91413e89"},"thumbnail.png":{"language":null,"type":"image/png","filename":"thumbnail.png","size":5050,"sha":"e77fd4da39a4b0c2fcafff90bf9792001fee81a5"}},"created_at":"2015-11-23T16:30:01Z","updated_at":"2017-12-26T13:32:01Z","description":"Using the elbow method to determine the optimal number of clusters for k-means clustering","owner":{"login":"rpgove"},"id":"0060ff3b656618e9136b"};
+
+var files = d3.values(gist.files);
+
+d3.select(".gist-readme")
+  .data(files, function(d) { return d ? d.filename : this.getAttribute("data-key"); })
+    .each(function(d) {
+      var readme = d3.select(this);
+      d3.text("/rpgove/raw/0060ff3b656618e9136b/9aee23cc799d154520572b30443284525dbfcac5/" + d.filename, function(error, content) {
+        if (error) content = "Sorry, an error occurred.";
+        readme.html(new showdown.Converter().makeHtml(content));
+        readme.selectAll("code").each(function() { hljs.highlightBlock(this); });
+      });
+    });
+
+d3.selectAll(".gist-source")
+  .data(files, function(d) { return d ? d.filename : this.getAttribute("data-key"); })
+  .select("code")
+    .attr("class", function(d) { return d.language && (d.language === "JSON" ? "javascript" : d.language.toLowerCase()); })
+    .each(function(d) {
+      var code = d3.select(this);
+      d3.text("/rpgove/raw/0060ff3b656618e9136b/9aee23cc799d154520572b30443284525dbfcac5/" + (d.filename === "index.html" ? "" : d.filename), function(error, content) {
+        if (error) content = "Sorry, an error occurred.";
+        code.text(content);
+        hljs.highlightBlock(code.node());
+      });
+    });
+
+</script>
+
+<script>
+
+GoogleAnalyticsObject = "ga", ga = function() { ga.q.push(arguments); }, ga.q = [], ga.l = +new Date;
+ga("create", "UA-48272912-1", "auto");
+ga("send", "pageview");
+
+</script>
+<script async="" src="./Using the elbow method to determine the optimal number of clusters for k-means clustering - bl.ocks.org_files/analytics.js.Без названия"></script>
+</body></html>

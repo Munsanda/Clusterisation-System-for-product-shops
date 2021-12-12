@@ -1,0 +1,7 @@
+<RCC>
+  <qresource>
+    <file>Resources/Icons/Exit.png</file>
+    <file>Resources/Icons/Open.png</file>
+    <file>Resources/Icons/Save.png</file>
+  </qresource>
+</RCC>
